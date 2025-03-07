@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notepad Uygulaması</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        textarea, input {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .note {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Notepad</h2>
+    <input type="text" id="title" placeholder="Not Başlığı">
+    <textarea id="content" placeholder="Not İçeriği"></textarea>
+    <button onclick="addNote()">Not Ekle</button>
+    <h3>Notlar</h3>
+    <div id="notes"></div>
+    
+    <script>
+        const API_URL = "http://localhost/notes";
+
+        async function fetchNotes() {
+            const response = await fetch(API_URL);
+            const notes = await response.json();
+            document.getElementById("notes").innerHTML = notes.map(note => `
+                <div class="note">
+                    <h4>${note.title}</h4>
+                    <p>${note.content}</p>
+                </div>
+            `).join('');
+        }
+
+        async function addNote() {
+            const title = document.getElementById("title").value;
+            const content = document.getElementById("content").value;
+            if (!title || !content) {
+                alert("Lütfen başlık ve içerik giriniz.");
+                return;
+            }
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, content })
+            });
+            if (response.ok) {
+                fetchNotes();
+                document.getElementById("title").value = "";
+                document.getElementById("content").value = "";
+            } else {
+                alert("Not eklenirken hata oluştu.");
+            }
+        }
+
+        fetchNotes();
+    </script>
+</body>
+</html>
